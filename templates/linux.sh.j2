@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+set -e
+
+if ! [ -x "$(command -v ipsec)" ];then
+  echo "Please install strongswan first."
+  exit -1
+fi
+
+if ! [ `whoami` == 'root' ];then
+  echo "Please run this script with root."
+  exit -1
+fi
+
+username={{username}}
+hostname={{hostname}}
+vpnname={{vpnname}}
+
+cat << EOF > /etc/ipsec.d/private/$username.p12
+{{p12_cert}}
+EOF
+chmod 600 /etc/ipsec.d/private/$username.p12
+
+cat << EOF > /etc/ipsec.secrets
+# ipsec.secrets - strongSwan IPsec secrets file
+
+# $vpnname
+: P12 $username.p12 %prompt
+EOF
+chmod 600 /etc/ipsec.secrets
+
+
+cat << EOF > /etc/ipsec.conf
+# ipsec.conf - strongSwan IPsec configuration file
+
+conn %default
+  ikelifetime=60m
+  keylife=30m
+  rekeymargin=3m
+  keyingtries=1
+  keyexchange=ikev2
+
+conn $vpnname
+  left=%defaultroute
+  leftsourceip=%config4
+  leftfirewall=yes
+
+  leftauth=pubkey
+  leftid=$username
+
+  right=$hostname
+  rightsubnet=0.0.0.0/0
+  rightauth=pubkey
+  auto=add
+EOF
+
+ipsec restart
+ipsec reload
+ipsec rereadall
+
+echo "done"
+echo "Now you can connect the VPN via  ipsec up $vpnname   "
