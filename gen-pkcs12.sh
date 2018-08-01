@@ -7,8 +7,8 @@ if [ `whoami` != 'root' ]; then
   exit -1
 fi
 
-if [ `$#` -ne 2 ]; then
-  echo "Usage: $1 username"
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 username"
   exit -1
 fi
 
@@ -16,7 +16,7 @@ cd /etc/ipsec.d/
 mkdir -p p12
 
 # Client cert
-read -p "Username: " name
+name=$1
 key=private/${name}-key.pem
 cert=certs/${name}-cert.pem
 p12cert=p12/${name}.p12
