@@ -39,3 +39,4 @@ openssl pkcs12 -export -name "Client certificate for $name" \
 -certfile cacerts/cacert.pem \
 -caname "BFS Root CA" \
 -out $p12cert
+chmod 600 $p12cert
