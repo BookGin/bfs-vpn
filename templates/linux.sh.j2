@@ -16,9 +16,7 @@ username={{username}}
 hostname={{hostname}}
 vpnname={{vpnname}}
 
-cat << EOF > /etc/ipsec.d/private/$username.p12
-{{p12_cert}}
-EOF
+base64 -d <<< '{{p12_base64}}' > /etc/ipsec.d/private/$username.p12
 chmod 600 /etc/ipsec.d/private/$username.p12
 
 cat << EOF > /etc/ipsec.secrets
