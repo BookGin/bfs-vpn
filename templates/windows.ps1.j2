@@ -178,6 +178,7 @@ function Add-AlgoVPN {
         Force = $true
     }
     Set-VpnConnectionIPsecConfiguration @setVpnParams
+    Set-VpnConnection -Name $VpnName -SplitTunneling $True
 }
 
 function Remove-AlgoVPN {
