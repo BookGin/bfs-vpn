@@ -23,7 +23,6 @@ base64 -d <<< '{{cacert_base64}}' > /etc/ipsec.d/cacerts/cacert.pem
 
 cat << EOF > /etc/ipsec.secrets
 # ipsec.secrets - strongSwan IPsec secrets file
-
 # $vpnname
 : P12 $username.p12 %prompt
 EOF
@@ -50,7 +49,7 @@ conn $vpnname
 
     leftsourceip=%config
     leftauth=pubkey
-    leftcert=bookgin.crt
+    leftid=$username
     leftfirewall=yes
     left=%defaultroute
 
@@ -58,8 +57,11 @@ conn $vpnname
 EOF
 
 ipsec restart
+sleep 2
 ipsec reload
+sleep 4
 ipsec rereadall
+
 
 echo "done"
 echo "Now you can connect the VPN via: ipsec up $vpnname"
