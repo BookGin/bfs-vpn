@@ -6,9 +6,12 @@ import base64
 
 from jinja2 import Template
 from uuid import uuid4
+from shutil import copyfile
 
 MAC_TEMPLATE_FILE='templates/mac.mobileconfig.j2'
-WINDOWS_TEMPLATE_FILE='templates/windows.ps1.j2'
+WINDOWS10_TEMPLATE_FILE='templates/windows10.ps1.j2'
+WINDOWS8_TEMPLATE_FILE='templates/windows8.ps1.j2'
+WINDOWS_README_FILE='templates/windows-readme.txt'
 LINUX_TEMPLATE_FILE='templates/linux.sh.j2'
 
 def generateMacConfig(username, hostname, p12_base64, cacert_base64, vpnname):
@@ -28,12 +31,29 @@ def generateMacConfig(username, hostname, p12_base64, cacert_base64, vpnname):
         PayloadUUID=str(uuid4()).upper(), 
     )
 
-def generateWindowsConfig(username, hostname, p12_base64, cacert_base64, vpnname):
-    with open(WINDOWS_TEMPLATE_FILE) as f:
+def generateWindowsReadme(windows10_config_filename, windows8_config_filename):
+    with open(WINDOWS_README_FILE) as f:
+        template = Template(f.read())
+    return template.render(
+        windows10_config_filename=windows10_config_filename,
+        windows8_config_filename=windows8_config_filename,
+    )
+
+def generateWindows10Config(username, hostname, p12_base64, cacert_base64, vpnname):
+    with open(WINDOWS10_TEMPLATE_FILE) as f:
         template = Template(f.read())
     return template.render(
         cacert_base64=cacert_base64,
         p12_base64=p12_base64,
+        username=username,
+        IP_subject_alt_name=hostname,
+        vpnname=vpnname,
+    )
+
+def generateWindows8Config(username, hostname, vpnname):
+    with open(WINDOWS8_TEMPLATE_FILE) as f:
+        template = Template(f.read())
+    return template.render(
         username=username,
         IP_subject_alt_name=hostname,
         vpnname=vpnname,
@@ -67,13 +87,26 @@ def main(argv):
 
     os.mkdir(argv.username)
 
-    windows_config = generateWindowsConfig(argv.username, argv.hostname, p12_base64, cacert_base64, argv.vpnname)
-    with open(os.path.join(argv.username, argv.vpnname + "-windows.ps1"), "w") as f:
-        f.write(windows_config)
+    windows10_config = generateWindows10Config(argv.username, argv.hostname, p12_base64, cacert_base64, argv.vpnname)
+    windows10_config_filename = argv.vpnname + "-windows10.ps1"
+    with open(os.path.join(argv.username, windows10_config_filename), "w") as f:
+        f.write(windows10_config)
+
+    windows8_config = generateWindows8Config(argv.username, argv.hostname, argv.vpnname)
+    windows8_config_filename = argv.vpnname + "-windows8.ps1"
+    with open(os.path.join(argv.username, windows8_config_filename), "w") as f:
+        f.write(windows8_config)
+    copyfile(argv.p12, os.path.join(argv.username, argv.username + '.p12'))
+    copyfile(argv.cacert, os.path.join(argv.username, 'cacert.pem'))
+
+    windows_readme = generateWindowsReadme(windows10_config_filename, windows8_config_filename)
+    with open(os.path.join(argv.username, 'windows-readme.txt'), "w") as f:
+        f.write(windows_readme)
 
     mac_config = generateMacConfig(argv.username, argv.hostname, p12_base64, cacert_base64, argv.vpnname)
     with open(os.path.join(argv.username, argv.vpnname + "-mac.mobileconfig"), "w") as f:
         f.write(mac_config)
+
     linux_config = generateLinuxConfig(argv.username, argv.hostname, p12_base64, cacert_base64, argv.vpnname)
     with open(os.path.join(argv.username, argv.vpnname + "-linux.sh"), "w") as f:
         f.write(linux_config)
