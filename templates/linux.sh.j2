@@ -19,6 +19,8 @@ vpnname={{vpnname}}
 base64 -d <<< '{{p12_base64}}' > /etc/ipsec.d/private/$username.p12
 chmod 600 /etc/ipsec.d/private/$username.p12
 
+base64 -d <<< '{{cacert_base64}}' > /etc/ipsec.d/cacerts/cacert.pem
+
 cat << EOF > /etc/ipsec.secrets
 # ipsec.secrets - strongSwan IPsec secrets file
 
@@ -30,26 +32,29 @@ chmod 600 /etc/ipsec.secrets
 
 cat << EOF > /etc/ipsec.conf
 # ipsec.conf - strongSwan IPsec configuration file
-
-conn %default
-  ikelifetime=60m
-  keylife=30m
-  rekeymargin=3m
-  keyingtries=1
-  keyexchange=ikev2
-
 conn $vpnname
-  left=%defaultroute
-  leftsourceip=%config4
-  leftfirewall=yes
+    fragmentation=yes
+    rekey=no
+    dpdaction=clear
+    keyexchange=ikev2
+    compress=no
+    dpddelay=35s
 
-  leftauth=pubkey
-  leftid=$username
+    ike=aes256gcm16-prfsha512-ecp384,aes256-sha2_512-prfsha512-ecp384,aes256-sha2_384-prfsha384-ecp384!
+    esp=aes256gcm16-ecp384,aes256-sha2_512-prfsha512-ecp384!
 
-  right=$hostname
-  rightsubnet=0.0.0.0/0
-  rightauth=pubkey
-  auto=add
+    right=35.190.226.137
+    rightid=35.190.226.137
+    rightsubnet=0.0.0.0/0
+    rightauth=pubkey
+
+    leftsourceip=%config
+    leftauth=pubkey
+    leftcert=bookgin.crt
+    leftfirewall=yes
+    left=%defaultroute
+
+    auto=add
 EOF
 
 ipsec restart

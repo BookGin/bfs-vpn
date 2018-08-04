@@ -39,7 +39,7 @@ def generateWindowsConfig(username, hostname, p12_base64, cacert_base64, vpnname
         vpnname=vpnname,
     )
 
-def generateLinuxConfig(username, hostname, p12_base64, vpnname):
+def generateLinuxConfig(username, hostname, p12_base64, cacert_base64, vpnname):
     with open(LINUX_TEMPLATE_FILE) as f:
         template = Template(f.read())
     return template.render(
@@ -47,6 +47,7 @@ def generateLinuxConfig(username, hostname, p12_base64, vpnname):
         hostname=hostname,
         vpnname=vpnname,
         p12_base64=p12_base64,
+        cacert_base64=cacert_base64,
     )
 
 def parseArgv():
@@ -73,7 +74,7 @@ def main(argv):
     mac_config = generateMacConfig(argv.username, argv.hostname, p12_base64, cacert_base64, argv.vpnname)
     with open(os.path.join(argv.username, argv.vpnname + "-mac.mobileconfig"), "w") as f:
         f.write(mac_config)
-    linux_config = generateLinuxConfig(argv.username, argv.hostname, p12_base64, argv.vpnname)
+    linux_config = generateLinuxConfig(argv.username, argv.hostname, p12_base64, cacert_base64, argv.vpnname)
     with open(os.path.join(argv.username, argv.vpnname + "-linux.sh"), "w") as f:
         f.write(linux_config)
 
