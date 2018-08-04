@@ -1,0 +1,30 @@
+#Requires -RunAsAdministrator
+$VpnServerAddress = "{{ IP_subject_alt_name }}"
+$UserP12Path = "{{ username }}.p12"
+$CaCertPath = "cacert.pem"
+$VpnName = "{{ vpnname }}"
+$p12Pass = Read-Host -AsSecureString -Prompt "User p12 password"
+
+Import-PfxCertificate -FilePath $UserP12Path -CertStoreLocation Cert:\LocalMachine\My -Password $p12Pass
+Import-Certificate -FilePath $CaCertPath -CertStoreLocation Cert:\LocalMachine\Root
+
+$addVpnParams = @{
+    Name = $VpnName
+    ServerAddress = $VpnServerAddress
+    TunnelType = "IKEv2"
+    AuthenticationMethod = "MachineCertificate"
+    EncryptionLevel = "Required"
+}
+Add-VpnConnection @addVpnParams
+
+$setVpnParams = @{
+    ConnectionName = $VpnName
+    AuthenticationTransformConstants = "GCMAES256"
+    CipherTransformConstants = "GCMAES256"
+    EncryptionMethod = "AES256"
+    IntegrityCheckMethod = "SHA384"
+    DHGroup = "ECP384"
+    PfsGroup = "ECP384"
+    Force = $true
+}
+Set-VpnConnectionIPsecConfiguration @setVpnParams
