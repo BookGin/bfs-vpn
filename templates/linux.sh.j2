@@ -42,8 +42,8 @@ conn $vpnname
     ike=aes256gcm16-prfsha512-ecp384,aes256-sha2_512-prfsha512-ecp384,aes256-sha2_384-prfsha384-ecp384!
     esp=aes256gcm16-ecp384,aes256-sha2_512-prfsha512-ecp384!
 
-    right=35.190.226.137
-    rightid=35.190.226.137
+    right=$hostname
+    rightid=$hostname
     rightsubnet=0.0.0.0/0
     rightauth=pubkey
 
