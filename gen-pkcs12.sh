@@ -31,3 +31,9 @@ openssl pkcs12 \
 -name $name \
 -out private/$name.p12
 #-passout pass:"{{ easyrsa_p12_export_password }}"
+
+./gen-install-script.py --username $name \
+--hostname $IP_subject_alt_name \
+--p12 private/$name.p12 \
+--cacert cacert.pem \
+--vpnname $vpnname
