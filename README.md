@@ -15,7 +15,7 @@ The VPN is used in our CTF team, BFS, which attends DEFCON CTF Final 2018.
 
 Directory hierarchy:
 - cloud: where the VPN server installed, rendezvous point in the cloud, with public IP
-- onsite: the config is installed in the DEFCON onsite machine
+- onsite: thurconfig is installed in the DEFCON onsite machine
 - client: the config is for the clients
 
 ## Usage
@@ -31,7 +31,7 @@ Directory hierarchy:
 - Remember to choose YES for the compatibility of Windows 10.
 - Remember to keep the CA password.
 
-For more details, please refer to [config.cfg](config.cfg)
+For more details, please refer to [cloud/config.cfg](cloud/config.cfg)
 
 ### Install The Script Generator
 
