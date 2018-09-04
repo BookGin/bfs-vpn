@@ -13,7 +13,12 @@ This repository provides VPN install scripts for different operation systems:
 
 The VPN is used in our CTF team, BFS, which attends DEFCON CTF Final 2018.
 
-## Install
+Directory hierarchy:
+- cloud: where the VPN server installed, rendezvous point in the cloud, with public IP
+- onsite: the config is installed in the DEFCON onsite machine
+- client: the config is for the clients
+
+## Usage
 
 ### Install Algo VPN
 
@@ -27,3 +32,32 @@ The VPN is used in our CTF team, BFS, which attends DEFCON CTF Final 2018.
 - Remember to keep the CA password.
 
 For more details, please refer to [config.cfg](config.cfg)
+
+### Install The Script Generator
+
+- Specify the password and IP address in `gen-pkcs12.sh`:
+```
+easyrsa_CA_password=""
+IP_subject_alt_name=""
+```
+
+Signing the domain name leads to lots of problems in mac OS X. Please sign the Public IP address.
+
+- Install the script Generator
+```
+cp ./gen-install-script.py algo-git-clone-repo/configs/240.240.240.240/pki
+cp ./gen-pkcs12.sh ./algo-git-clone-repo/configs/240.240.240.240/pki
+```
+
+### Generate Install Scripts
+
+```
+cd algo-git-clone-repo/configs/240.240.240.240/pki
+./gen-pkcs12.sh USERNAME
+tar zcvf USERNAME.tar.gz USERNAME
+```
+
+## Note
+
+- Encrypt PKCS 12: Specify the option `-passout pass:"password_you_like"` in `gen-pkcs12.sh
+- You need to set up NAT on the onsite machine yourself.
